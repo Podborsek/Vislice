@@ -9,6 +9,7 @@ PONOVLJENA_CRKA = "o"
 NAPACNA_CRKA = "-"
 ZMAGA = "w"
 PORAZ = "x"
+ZACETEK = 'S'
 
 #Definiramo logični model igre
 
@@ -33,7 +34,7 @@ class Igra:
             if iz_gesla not in self.crke:
                 return False
         
-        return self.stevilo_napak() <= STEVILO_DOVOLJENIH_NAPAK
+        return True
     
     def poraz(self):
         return self.stevilo_napak() > STEVILO_DOVOLJENIH_NAPAK
@@ -46,7 +47,7 @@ class Igra:
             if crka in znane:
                 rez += crka
             else:
-                rez += "_"
+                rez += "_ "
         rez = rez.strip()
         return rez
 
@@ -82,7 +83,7 @@ class Igra:
 #Ustvarimo bazen besed
 
 with open("besede.txt", 'r', encoding='utf-8') as dat:
-    bazen_besed = dat.readlines()
+    bazen_besed = [r.strip() for r in dat.readlines()]
 
 
 
@@ -92,11 +93,33 @@ def nova_igra():
     return Igra(beseda, [])
 
 
+class Vislice:
+    def __init__(self):
+        #V slovarju igre ima vsaka igra svoj id, ki je celo stevilo
+        self.igre = {}
+        return
 
-#Razni testi
-#spil = nova_igra()
-#print(spil.ugibaj("e"))
-#print(spil.pravilni_del_gesla())
-#print(Igra("GESLO", ['G','S','L']).pravilni_del_gesla())
-#print(Igra("GESLO", ['G','E','S','L']).ugibaj('o'))
+    def prost_id_igre(self):
+        if self.igre == {}:
+            return 0
+        else:
+            for i in range(len(self.igre) + 1):
+                if i not in self.igre.keys():
+                    return i
+    
+    def nova_igra(self):
+        #Naredi novo igro z nakljucnim geslom, in jo shrani v slovar z novim id
+        nov_id = self.prost_id_igre()
+        self.igre[nov_id] = (nova_igra(), ZACETEK)
+
+        return nov_id
+    
+    def ugibaj(self, id_igre, crka):
+        (spil, _) = self.igre[id_igre]
+        poskus = spil.ugibaj(crka)
+        self.igre[id_igre] = (spil, poskus)
+        return
+
+    
+
 
